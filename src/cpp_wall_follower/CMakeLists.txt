@@ -12,6 +12,7 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 add_executable(sensor src/distance_sensor_node.cpp)
 ament_target_dependencies(sensor rclcpp std_msgs)
@@ -19,9 +20,14 @@ ament_target_dependencies(sensor rclcpp std_msgs)
 add_executable(filter src/distance_filter_node.cpp)
 ament_target_dependencies(filter rclcpp std_msgs)
 
+add_executable(controller src/velocity_controller_node.cpp)
+ament_target_dependencies(controller rclcpp std_msgs geometry_msgs)
+
+
 install(TARGETS
   sensor
   filter
+  controller
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY
