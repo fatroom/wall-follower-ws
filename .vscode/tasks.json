@@ -15,6 +15,17 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "colcon: clean",
+            "type": "shell",
+            "command": [
+                "rm -rf build install log"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
         }
     ]
 }
