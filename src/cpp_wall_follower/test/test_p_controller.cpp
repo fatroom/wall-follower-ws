@@ -10,6 +10,7 @@ TEST(PControllerTest, BasicProportionalResponse)
   params.max_speed = 2.0;
   params.target_distance = 5.0;
   params.watchdog_timeout = 1.0;
+  params.deadband = 0.0;
 
   PController controller(params);
 
@@ -27,7 +28,7 @@ TEST(PControllerTest, Saturation)
   params.max_speed = 1.0;
   params.target_distance = 10.0;
   params.watchdog_timeout = 1.0;
-
+  params.deadband = 0.0;
   PController controller(params);
 
   controller.update_measurement(0.0, 0.0);

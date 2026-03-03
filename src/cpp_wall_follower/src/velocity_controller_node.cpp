@@ -21,6 +21,7 @@ public:
     this->declare_parameter<double>("kp", 0.5);
     this->declare_parameter<double>("max_speed", 0.5);
     this->declare_parameter<double>("watchdog_timeout", 1.0);
+    this->declare_parameter<double>("deadband", 0.02);
 
     param_cb_handle_ = this->add_on_set_parameters_callback(
       [this](const std::vector<rclcpp::Parameter> & params) {
@@ -60,6 +61,11 @@ private:
       return false;
     }
 
+    if (params.deadband < 0.0) {
+      reason = "deadband must be >= 0";
+      return false;
+    }
+
     return true;
   }
 
@@ -71,6 +77,7 @@ private:
     new_params.max_speed = this->get_parameter("max_speed").as_double();
     new_params.target_distance = this->get_parameter("target_distance").as_double();
     new_params.watchdog_timeout = this->get_parameter("watchdog_timeout").as_double();
+    new_params.deadband = this->get_parameter("deadband").as_double();
 
     for (const auto & param : params) {
       if (param.get_name() == "kp") {
@@ -81,6 +88,8 @@ private:
         new_params.target_distance = param.as_double();
       } else if (param.get_name() == "watchdog_timeout") {
         new_params.watchdog_timeout = param.as_double();
+      } else if (param.get_name() == "deadband") {
+        new_params.deadband = param.as_double();
       }
     }
 
