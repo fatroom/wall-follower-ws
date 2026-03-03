@@ -1,5 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float32.hpp"
+#include <mutex>
 
 namespace cpp_wall_follower
 {
@@ -45,9 +46,11 @@ private:
 
   float previous_distance_ = std::numeric_limits<float>::quiet_NaN();
   float alpha_ = 0.2;
+  mutable std::mutex mutex_;
 
   bool update_alpha(float new_alpha)
   {
+    std::scoped_lock lock(mutex_);
     if (new_alpha <= 0.0 || new_alpha >= 1.0) {
       RCLCPP_WARN(this->get_logger(), "Invalid alpha value: %f. Must be between 0 and 1.",
         new_alpha);
@@ -60,6 +63,7 @@ private:
 
   float process_raw_distance(float distance)
   {
+    std::scoped_lock lock(mutex_);
     if (std::isnan(previous_distance_)) {previous_distance_ = distance;}
     float filtered_distance = alpha_ * distance + (1 - alpha_) * previous_distance_;
     previous_distance_ = filtered_distance;

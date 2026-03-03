@@ -21,7 +21,6 @@ public:
 private:
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
-  std::random_device rd_;
   std::mt19937 generator_;
   std::normal_distribution<float> noise_;
 
