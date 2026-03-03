@@ -10,11 +10,13 @@ PDistanceController::PDistanceController(const ControllerParams & params)
 
 void PDistanceController::set_params(const ControllerParams & params)
 {
+  std::scoped_lock lock(mutex_);
   params_ = params;
 }
 
 void PDistanceController::update_measurement(double distance, double time_sec)
 {
+  std::scoped_lock lock(mutex_);
   state_.distance = distance;
   state_.last_msg_time = time_sec;
   state_.has_measurement = true;
@@ -22,6 +24,7 @@ void PDistanceController::update_measurement(double distance, double time_sec)
 
 double PDistanceController::compute(double time_sec) const
 {
+  std::scoped_lock lock(mutex_);
   if (!state_.has_measurement) {
     return 0.0;
   }

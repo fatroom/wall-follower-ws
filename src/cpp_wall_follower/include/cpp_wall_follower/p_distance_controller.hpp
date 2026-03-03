@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cpp_wall_follower/distance_controller.hpp"
+#include <mutex>
 
 namespace cpp_wall_follower
 {
@@ -21,6 +22,8 @@ private:
     double last_msg_time{0.0};
     bool has_measurement{false};
   };
+
+  mutable std::mutex mutex_;
 
   ControllerParams params_;
   State state_;
