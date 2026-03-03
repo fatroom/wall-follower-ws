@@ -21,7 +21,7 @@ install(
 )
 
 add_library(wall_follower_lib
-  src/p_controller.cpp
+  src/p_distance_controller.cpp
 )
 
 target_include_directories(wall_follower_lib
@@ -75,15 +75,15 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 
-  ament_add_gtest(test_p_controller
-    test/test_p_controller.cpp
+  ament_add_gtest(test_p_distance_controller
+    test/test_p_distance_controller.cpp
   )
 
-  target_link_libraries(test_p_controller
+  target_link_libraries(test_p_distance_controller
     wall_follower_lib
   )
 
-  target_include_directories(test_p_controller
+  target_include_directories(test_p_distance_controller
     PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   )

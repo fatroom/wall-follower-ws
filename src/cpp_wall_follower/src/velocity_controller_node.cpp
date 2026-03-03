@@ -1,11 +1,13 @@
 #include <algorithm>
+#include <memory>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "std_msgs/msg/float32.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 
-#include "cpp_wall_follower/p_controller.hpp"
+#include "cpp_wall_follower/distance_controller.hpp"
+#include "cpp_wall_follower/p_distance_controller.hpp"
 
 
 using namespace std::chrono_literals;
@@ -16,7 +18,8 @@ public:
   VelocityControllerNode()
   : LifecycleNode("velocity_controller_node"),
     current_params_(),
-    controller_(cpp_wall_follower::ControllerParams{})
+    controller_(std::make_unique<cpp_wall_follower::PDistanceController>(
+      cpp_wall_follower::ControllerParams{}))
   {
     this->declare_parameter<double>("target_distance", 1.0);
     this->declare_parameter<double>("kp", 0.5);
@@ -44,7 +47,7 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 
   cpp_wall_follower::ControllerParams current_params_;
-  cpp_wall_follower::PController controller_;
+  std::unique_ptr<cpp_wall_follower::DistanceController> controller_;
 
   bool validate_params(
     const cpp_wall_follower::ControllerParams & params,
@@ -123,7 +126,7 @@ private:
     current_params_ = new_params;
 
     // Update controller with committed params
-    controller_.set_params(current_params_);
+    controller_->set_params(current_params_);
 
     RCLCPP_INFO_STREAM(this->get_logger(),
       "Updated params: kp=" << new_params.kp
@@ -155,7 +158,7 @@ private:
     current_params_ = params;
 
     // Update controller with committed params
-    controller_.set_params(current_params_);
+    controller_->set_params(current_params_);
 
     auto pub_qos = rclcpp::QoS(rclcpp::KeepLast(1)).reliable();
     publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", pub_qos);
@@ -178,7 +181,7 @@ private:
       "/filtered_distance",
       sub_qos,
       [this](std_msgs::msg::Float32::UniquePtr msg) {
-        controller_.update_measurement(msg->data, this->now().seconds());
+        controller_->update_measurement(msg->data, this->now().seconds());
       },
       sub_options);
 
@@ -210,7 +213,7 @@ private:
     }
 
     double now_sec = this->now().seconds();
-    double velocity = controller_.compute(now_sec);
+    double velocity = controller_->compute(now_sec);
 
     geometry_msgs::msg::Twist cmd_vel{};
     cmd_vel.linear.x = velocity;

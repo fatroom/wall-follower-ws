@@ -1,26 +1,26 @@
-#include "cpp_wall_follower/p_controller.hpp"
+#include "cpp_wall_follower/p_distance_controller.hpp"
 #include <algorithm>
 
 namespace cpp_wall_follower
 {
-PController::PController(const ControllerParams & params)
+PDistanceController::PDistanceController(const ControllerParams & params)
 : params_(params), state_()
 {
 }
 
-void PController::set_params(const ControllerParams & params)
+void PDistanceController::set_params(const ControllerParams & params)
 {
   params_ = params;
 }
 
-void PController::update_measurement(double distance, double time_sec)
+void PDistanceController::update_measurement(double distance, double time_sec)
 {
   state_.distance = distance;
   state_.last_msg_time = time_sec;
   state_.has_measurement = true;
 }
 
-double PController::compute(double time_sec) const
+double PDistanceController::compute(double time_sec) const
 {
   if (!state_.has_measurement) {
     return 0.0;

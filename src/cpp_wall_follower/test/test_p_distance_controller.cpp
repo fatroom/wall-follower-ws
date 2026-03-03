@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include "cpp_wall_follower/p_controller.hpp"
+#include "cpp_wall_follower/p_distance_controller.hpp"
 
 using namespace cpp_wall_follower;
 
-TEST(PControllerTest, BasicProportionalResponse)
+TEST(PDistanceControllerTest, BasicProportionalResponse)
 {
   ControllerParams params;
   params.kp = 1.0;
@@ -12,7 +12,7 @@ TEST(PControllerTest, BasicProportionalResponse)
   params.watchdog_timeout = 1.0;
   params.deadband = 0.0;
 
-  PController controller(params);
+  PDistanceController controller(params);
 
   controller.update_measurement(3.0, 0.0);
 
@@ -21,7 +21,7 @@ TEST(PControllerTest, BasicProportionalResponse)
   EXPECT_DOUBLE_EQ(cmd, 2.0);  // error = 2
 }
 
-TEST(PControllerTest, Saturation)
+TEST(PDistanceControllerTest, Saturation)
 {
   ControllerParams params;
   params.kp = 10.0;
@@ -29,7 +29,7 @@ TEST(PControllerTest, Saturation)
   params.target_distance = 10.0;
   params.watchdog_timeout = 1.0;
   params.deadband = 0.0;
-  PController controller(params);
+  PDistanceController controller(params);
 
   controller.update_measurement(0.0, 0.0);
 
@@ -38,7 +38,7 @@ TEST(PControllerTest, Saturation)
   EXPECT_DOUBLE_EQ(cmd, 1.0);  // clamped
 }
 
-TEST(PControllerTest, Deadband)
+TEST(PDistanceControllerTest, Deadband)
 {
   ControllerParams params;
   params.kp = 1.0;
@@ -46,7 +46,7 @@ TEST(PControllerTest, Deadband)
   params.target_distance = 5.0;
   params.watchdog_timeout = 1.0;
 
-  PController controller(params);
+  PDistanceController controller(params);
 
   controller.update_measurement(4.95, 0.0);
 
@@ -55,12 +55,12 @@ TEST(PControllerTest, Deadband)
   EXPECT_DOUBLE_EQ(cmd, 0.0);
 }
 
-TEST(PControllerTest, WatchdogTimeout)
+TEST(PDistanceControllerTest, WatchdogTimeout)
 {
   ControllerParams params;
   params.watchdog_timeout = 0.5;
 
-  PController controller(params);
+  PDistanceController controller(params);
 
   controller.update_measurement(1.0, 0.0);
 
@@ -69,11 +69,11 @@ TEST(PControllerTest, WatchdogTimeout)
   EXPECT_DOUBLE_EQ(cmd, 0.0);  // timeout
 }
 
-TEST(PControllerTest, NoMeasurement)
+TEST(PDistanceControllerTest, NoMeasurement)
 {
   ControllerParams params{};
 
-  PController controller(params);
+  PDistanceController controller(params);
 
   double cmd = controller.compute(0.0);
 
