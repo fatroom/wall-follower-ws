@@ -4,13 +4,6 @@
 
 namespace cpp_wall_follower
 {
-struct MeasurementState
-{
-  double distance{0.0};
-  double last_msg_time{0.0};
-  bool has_measurement{false};
-};
-
 class PDistanceController : public DistanceController
 {
 public:
@@ -22,7 +15,14 @@ public:
   double compute(double time_sec) const override;
 
 private:
+  struct State
+  {
+    double distance{0.0};
+    double last_msg_time{0.0};
+    bool has_measurement{false};
+  };
+
   ControllerParams params_;
-  MeasurementState state_;
+  State state_;
 };
 }
