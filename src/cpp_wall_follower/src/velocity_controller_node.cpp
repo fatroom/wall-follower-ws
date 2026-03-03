@@ -73,16 +73,24 @@ private:
     return true;
   }
 
+  cpp_wall_follower::ControllerParams load_params_from_ros() const
+  {
+    cpp_wall_follower::ControllerParams params;
+    params.kp = this->get_parameter("kp").as_double();
+    params.max_speed = this->get_parameter("max_speed").as_double();
+    params.target_distance = this->get_parameter("target_distance").as_double();
+    params.watchdog_timeout = this->get_parameter("watchdog_timeout").as_double();
+    params.deadband = this->get_parameter("deadband").as_double();
+    return params;
+  }
+
   rcl_interfaces::msg::SetParametersResult
   parameters_callback(const std::vector<rclcpp::Parameter> & params)
   {
-    cpp_wall_follower::ControllerParams new_params;
-    new_params.kp = this->get_parameter("kp").as_double();
-    new_params.max_speed = this->get_parameter("max_speed").as_double();
-    new_params.target_distance = this->get_parameter("target_distance").as_double();
-    new_params.watchdog_timeout = this->get_parameter("watchdog_timeout").as_double();
-    new_params.deadband = this->get_parameter("deadband").as_double();
+    // Load current parameter values
+    auto new_params = load_params_from_ros();
 
+    // Apply the proposed parameter changes
     for (const auto & param : params) {
       if (param.get_name() == "kp") {
         new_params.kp = param.as_double();
@@ -108,6 +116,11 @@ private:
 
     controller_.set_params(new_params);
 
+    RCLCPP_INFO(this->get_logger(),
+      "Updated params: kp=%.3f max_speed=%.3f target=%.3f watchdog=%.3f deadband=%.3f",
+      new_params.kp, new_params.max_speed, new_params.target_distance,
+      new_params.watchdog_timeout, new_params.deadband);
+
     result.successful = true;
     return result;
   }
@@ -118,12 +131,7 @@ private:
   {
     RCLCPP_INFO(this->get_logger(), "Configuring from state %s", previous_state.label().c_str());
 
-    cpp_wall_follower::ControllerParams params;
-    params.kp = this->get_parameter("kp").as_double();
-    params.max_speed = this->get_parameter("max_speed").as_double();
-    params.target_distance = this->get_parameter("target_distance").as_double();
-    params.watchdog_timeout = this->get_parameter("watchdog_timeout").as_double();
-    params.deadband = this->get_parameter("deadband").as_double();
+    auto params = load_params_from_ros();
 
     std::string reason;
 
