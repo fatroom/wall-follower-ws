@@ -26,6 +26,7 @@ TEST(PControllerTest, Saturation)
   params.kp = 10.0;
   params.max_speed = 1.0;
   params.target_distance = 10.0;
+  params.watchdog_timeout = 1.0;
 
   PController controller(params);
 
@@ -33,7 +34,7 @@ TEST(PControllerTest, Saturation)
 
   double cmd = controller.compute(0.1);
 
-  EXPECT_DOUBLE_EQ(cmd, 0);  // clamped
+  EXPECT_DOUBLE_EQ(cmd, 1.0);  // clamped
 }
 
 TEST(PControllerTest, Deadband)

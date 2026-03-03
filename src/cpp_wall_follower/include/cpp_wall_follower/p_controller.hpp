@@ -6,11 +6,10 @@ namespace cpp_wall_follower
 {
 struct ControllerParams
 {
-  double kp;
-  double max_speed;
-  double target_distance;
-  double watchdog_timeout;
-    /* data */
+  double kp{0.0};
+  double max_speed{0.0};
+  double target_distance{0.0};
+  double watchdog_timeout{0.0};
 };
 
 struct MeasurementState
