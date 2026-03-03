@@ -4,6 +4,8 @@
 
 using namespace std::chrono_literals;
 
+namespace cpp_wall_follower
+{
 class DistanceSensorNode : public rclcpp::Node {
 public:
   DistanceSensorNode()
@@ -11,7 +13,8 @@ public:
     generator_(std::random_device{}()),
     noise_(0, 0.05)
   {
-    publisher_ = this->create_publisher<std_msgs::msg::Float32>("/raw_distance", 10);
+    auto sensorQoS = rclcpp::SensorDataQoS();
+    publisher_ = this->create_publisher<std_msgs::msg::Float32>("/raw_distance", sensorQoS);
     timer_ = this->create_wall_timer(50ms, [this]() {this->publish();});
   }
 
@@ -26,24 +29,25 @@ private:
   {
     auto message = std_msgs::msg::Float32();
     message.data = get_distance_measurement();
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%f'", message.data);
+    RCLCPP_DEBUG(this->get_logger(), "Publishing: '%f'", message.data);
     publisher_->publish(message);
   }
 
   float get_distance_measurement()
   {
-        // Simulate a varying distance measurement
+    // Simulate a varying distance measurement
     float true_distance = 1.0 + 0.5 * sin(this->now().nanoseconds());
-        // Add some random noise to the measurement
+    // Add some random noise to the measurement
     float reading = true_distance + noise_(generator_);
     return reading;
   }
 };
+}
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<DistanceSensorNode>());
+  rclcpp::spin(std::make_shared<cpp_wall_follower::DistanceSensorNode>());
   rclcpp::shutdown();
   return 0;
 }

@@ -13,6 +13,8 @@
 using namespace std::chrono_literals;
 
 
+namespace cpp_wall_follower
+{
 class VelocityControllerNode : public rclcpp_lifecycle::LifecycleNode {
 public:
   VelocityControllerNode()
@@ -230,12 +232,13 @@ private:
     publisher_->publish(cmd_vel);
   }
 };
+}
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<VelocityControllerNode>();
+  auto node = std::make_shared<cpp_wall_follower::VelocityControllerNode>();
 
   rclcpp::executors::MultiThreadedExecutor executor(
     rclcpp::ExecutorOptions(),

@@ -1,7 +1,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float32.hpp"
 
-
+namespace cpp_wall_follower
+{
 class DistanceFilterNode : public rclcpp::Node {
 public:
   DistanceFilterNode()
@@ -28,9 +29,10 @@ public:
           return result;
         });
 
-    publisher_ = this->create_publisher<std_msgs::msg::Float32>("/filtered_distance", 10);
+    auto sensorQoS = rclcpp::SensorDataQoS();
+    publisher_ = this->create_publisher<std_msgs::msg::Float32>("/filtered_distance", sensorQoS);
     subscription_ = this->create_subscription<std_msgs::msg::Float32>(
-            "/raw_distance", 10, [this](std_msgs::msg::Float32::UniquePtr msg) {
+            "/raw_distance", sensorQoS, [this](std_msgs::msg::Float32::UniquePtr msg) {
         float distance = process_raw_distance(msg->data);
         publish_filtered_distance(distance);
             });
@@ -68,15 +70,16 @@ private:
   {
     auto message = std_msgs::msg::Float32();
     message.data = distance;
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%f'", message.data);
+    RCLCPP_DEBUG(this->get_logger(), "Publishing: '%f'", message.data);
     publisher_->publish(message);
   }
 };
+}
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<DistanceFilterNode>());
+  rclcpp::spin(std::make_shared<cpp_wall_follower::DistanceFilterNode>());
   rclcpp::shutdown();
   return 0;
 }
