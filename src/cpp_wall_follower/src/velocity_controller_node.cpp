@@ -119,6 +119,7 @@ private:
     params.max_speed = this->get_parameter("max_speed").as_double();
     params.target_distance = this->get_parameter("target_distance").as_double();
     params.watchdog_timeout = this->get_parameter("watchdog_timeout").as_double();
+    params.deadband = this->get_parameter("deadband").as_double();
 
     std::string reason;
 
