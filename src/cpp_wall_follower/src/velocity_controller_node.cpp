@@ -116,10 +116,12 @@ private:
 
     controller_.set_params(new_params);
 
-    RCLCPP_INFO(this->get_logger(),
-      "Updated params: kp=%.3f max_speed=%.3f target=%.3f watchdog=%.3f deadband=%.3f",
-      new_params.kp, new_params.max_speed, new_params.target_distance,
-      new_params.watchdog_timeout, new_params.deadband);
+    RCLCPP_INFO_STREAM(this->get_logger(),
+      "Updated params: kp=" << new_params.kp
+                            << " max_speed=" << new_params.max_speed
+                            << " target=" << new_params.target_distance
+                            << " watchdog=" << new_params.watchdog_timeout
+                            << " deadband=" << new_params.deadband);
 
     result.successful = true;
     return result;
@@ -191,6 +193,10 @@ private:
 
   void control_loop()
   {
+    if (!publisher_ || !publisher_->is_activated()) {
+      return;
+    }
+
     double now_sec = this->now().seconds();
     double velocity = controller_.compute(now_sec);
 
