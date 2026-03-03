@@ -12,7 +12,7 @@ public:
 
   void set_params(const ControllerParams & params) override;
   void update_measurement(double distance, double time_sec) override;
-  
+
   /**
    * @brief Compute control output based on current state
    * @param time_sec Current time in seconds for watchdog comparison

@@ -10,6 +10,8 @@
 #include "cpp_wall_follower/p_distance_controller.hpp"
 
 
+static constexpr size_t DEFAULT_EXECUTOR_THREADS = 4;
+
 using namespace std::chrono_literals;
 
 
@@ -51,7 +53,8 @@ public:
     this->declare_parameter<double>("max_speed", 0.5, max_speed_desc);
 
     auto watchdog_timeout_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    watchdog_timeout_desc.description = "Maximum time in seconds without measurement before stopping";
+    watchdog_timeout_desc.description =
+      "Maximum time in seconds without measurement before stopping";
     watchdog_timeout_desc.floating_point_range.resize(1);
     watchdog_timeout_desc.floating_point_range[0].from_value = 0.01;
     watchdog_timeout_desc.floating_point_range[0].to_value = 10.0;
@@ -279,8 +282,7 @@ int main(int argc, char * argv[])
   auto node = std::make_shared<cpp_wall_follower::VelocityControllerNode>();
 
   rclcpp::executors::MultiThreadedExecutor executor(
-    rclcpp::ExecutorOptions(),
-    4  // number of threads
+    rclcpp::ExecutorOptions(), DEFAULT_EXECUTOR_THREADS
   );
   executor.add_node(node->get_node_base_interface());
   executor.spin();
