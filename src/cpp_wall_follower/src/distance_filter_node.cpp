@@ -35,9 +35,9 @@ public:
         });
 
     auto sensorQoS = rclcpp::SensorDataQoS();
-    publisher_ = this->create_publisher<std_msgs::msg::Float32>("/filtered_distance", sensorQoS);
+    publisher_ = this->create_publisher<std_msgs::msg::Float32>("filtered_distance", sensorQoS);
     subscription_ = this->create_subscription<std_msgs::msg::Float32>(
-            "/raw_distance", sensorQoS, [this](std_msgs::msg::Float32::UniquePtr msg) {
+            "raw_distance", sensorQoS, [this](std_msgs::msg::Float32::UniquePtr msg) {
         float distance = process_raw_distance(msg->data);
         publish_filtered_distance(distance);
             });

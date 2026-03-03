@@ -204,7 +204,7 @@ private:
     controller_->set_params(current_params_);
 
     auto pub_qos = rclcpp::QoS(rclcpp::KeepLast(1)).reliable();
-    publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", pub_qos);
+    publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", pub_qos);
 
     return CallbackReturn::SUCCESS;
   }
@@ -221,7 +221,7 @@ private:
     auto sub_options = rclcpp::SubscriptionOptions();
     sub_options.callback_group = callback_group_;
     subscription_ = this->create_subscription<std_msgs::msg::Float32>(
-      "/filtered_distance",
+      "filtered_distance",
       sub_qos,
       [this](std_msgs::msg::Float32::UniquePtr msg) {
         controller_->update_measurement(msg->data, this->now().seconds());

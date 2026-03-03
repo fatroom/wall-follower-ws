@@ -62,21 +62,21 @@ class TestPipeline(unittest.TestCase):
         # Use SensorDataQoS for raw and filtered distance to match publisher QoS
         self.raw_sub = self.node.create_subscription(
             Float32,
-            '/raw_distance',
+            'raw_distance',
             lambda msg: self.raw_distances.append(msg.data),
             qos_profile_sensor_data,
         )
 
         self.filtered_sub = self.node.create_subscription(
             Float32,
-            '/filtered_distance',
+            'filtered_distance',
             lambda msg: self.filtered_distances.append(msg.data),
             qos_profile_sensor_data,
         )
 
         # cmd_vel uses default reliable QoS
         self.cmd_vel_sub = self.node.create_subscription(
-            Twist, '/cmd_vel', lambda msg: self.cmd_vels.append(msg.linear.x), 10
+            Twist, 'cmd_vel', lambda msg: self.cmd_vels.append(msg.linear.x), 10
         )
 
     def tearDown(self):

@@ -14,7 +14,7 @@ public:
     noise_(0, 0.05)
   {
     auto sensorQoS = rclcpp::SensorDataQoS();
-    publisher_ = this->create_publisher<std_msgs::msg::Float32>("/raw_distance", sensorQoS);
+    publisher_ = this->create_publisher<std_msgs::msg::Float32>("raw_distance", sensorQoS);
     timer_ = this->create_wall_timer(50ms, [this]() {this->publish();});
   }
 
