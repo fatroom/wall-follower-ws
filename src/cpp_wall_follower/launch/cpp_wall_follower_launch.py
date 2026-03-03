@@ -1,10 +1,10 @@
 from launch import LaunchDescription
 from launch.actions import EmitEvent
 from launch.actions import RegisterEventHandler
-from launch_ros.actions import Node
 from launch_ros.actions import LifecycleNode
-from launch_ros.events.lifecycle import ChangeState
+from launch_ros.actions import Node
 from launch_ros.event_handlers import OnStateTransition
+from launch_ros.events.lifecycle import ChangeState
 from lifecycle_msgs.msg import Transition
 
 

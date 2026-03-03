@@ -69,6 +69,7 @@ install(DIRECTORY
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(launch_testing_ament_cmake REQUIRED)
   # the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files
   set(ament_cmake_copyright_FOUND TRUE)
@@ -89,6 +90,18 @@ if(BUILD_TESTING)
   target_include_directories(test_p_distance_controller
     PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  )
+
+  add_launch_test(
+    test/integration/test_pipeline.py
+    TARGET test_integration_pipeline
+    TIMEOUT 30
+  )
+
+  add_launch_test(
+    test/integration/test_lifecycle.py
+    TARGET test_integration_lifecycle
+    TIMEOUT 20
   )
 endif()
 
