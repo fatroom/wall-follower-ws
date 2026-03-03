@@ -15,6 +15,7 @@ class VelocityControllerNode : public rclcpp_lifecycle::LifecycleNode {
 public:
   VelocityControllerNode()
   : LifecycleNode("velocity_controller_node"),
+    current_params_(),
     controller_(cpp_wall_follower::ControllerParams{})
   {
     this->declare_parameter<double>("target_distance", 1.0);
@@ -22,6 +23,9 @@ public:
     this->declare_parameter<double>("max_speed", 0.5);
     this->declare_parameter<double>("watchdog_timeout", 1.0);
     this->declare_parameter<double>("deadband", 0.02);
+
+    // Initialize current_params_ from declared parameters
+    current_params_ = load_params_from_ros();
 
     callback_group_ = this->create_callback_group(
       rclcpp::CallbackGroupType::MutuallyExclusive);
@@ -39,6 +43,7 @@ private:
   rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
 
+  cpp_wall_follower::ControllerParams current_params_;
   cpp_wall_follower::PController controller_;
 
   bool validate_params(
@@ -87,8 +92,8 @@ private:
   rcl_interfaces::msg::SetParametersResult
   parameters_callback(const std::vector<rclcpp::Parameter> & params)
   {
-    // Load current parameter values
-    auto new_params = load_params_from_ros();
+    // Start from current committed state (single source of truth)
+    auto new_params = current_params_;
 
     // Apply the proposed parameter changes
     for (const auto & param : params) {
@@ -114,7 +119,11 @@ private:
       return result;
     }
 
-    controller_.set_params(new_params);
+    // Commit to current_params_ (single source of truth)
+    current_params_ = new_params;
+
+    // Update controller with committed params
+    controller_.set_params(current_params_);
 
     RCLCPP_INFO_STREAM(this->get_logger(),
       "Updated params: kp=" << new_params.kp
@@ -133,20 +142,23 @@ private:
   {
     RCLCPP_INFO(this->get_logger(), "Configuring from state %s", previous_state.label().c_str());
 
+    // Load from ROS parameters
     auto params = load_params_from_ros();
 
     std::string reason;
-
     if (!validate_params(params, reason)) {
       RCLCPP_ERROR(this->get_logger(), "%s", reason.c_str());
       return CallbackReturn::FAILURE;
     }
 
-    controller_.set_params(params);
+    // Commit to current_params_ (single source of truth)
+    current_params_ = params;
+
+    // Update controller with committed params
+    controller_.set_params(current_params_);
 
     auto pub_qos = rclcpp::QoS(rclcpp::KeepLast(1)).reliable();
     publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", pub_qos);
-
 
     return CallbackReturn::SUCCESS;
   }
