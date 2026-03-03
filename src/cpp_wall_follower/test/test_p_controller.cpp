@@ -41,8 +41,9 @@ TEST(PControllerTest, Deadband)
 {
   ControllerParams params;
   params.kp = 1.0;
-  //params.deadband = 0.1;
+  params.deadband = 0.1;
   params.target_distance = 5.0;
+  params.watchdog_timeout = 1.0;
 
   PController controller(params);
 

@@ -52,6 +52,10 @@ double PController::compute(double time_sec) const
 
   double error = params->target_distance - state->distance;
 
+  if (std::abs(error) < params->deadband) {
+    return 0.0;
+  }
+
   double velocity = params->kp * error;
   return std::clamp(velocity, -params->max_speed, params->max_speed);
 }
