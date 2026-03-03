@@ -10,8 +10,12 @@ public:
   : Node("distance_filter_node")
   {
     auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    param_desc.description = "Smoothing factor for the low-pass filter";
-    param_desc.additional_constraints = "0 < alpha < 1";
+    param_desc.description = "Smoothing factor for the low-pass filter (higher = less smoothing)";
+    param_desc.floating_point_range.resize(1);
+    param_desc.floating_point_range[0].from_value = 0.0;
+    param_desc.floating_point_range[0].to_value = 1.0;
+    param_desc.floating_point_range[0].step = 0.0;
+    param_desc.additional_constraints = "Must be 0 < alpha < 1 (exclusive)";
     this->declare_parameter<float>("alpha", 0.2, param_desc);
 
     param_callback_handle_ =

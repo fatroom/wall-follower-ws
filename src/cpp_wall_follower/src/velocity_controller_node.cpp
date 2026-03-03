@@ -23,11 +23,49 @@ public:
     controller_(std::make_unique<cpp_wall_follower::PDistanceController>(
       cpp_wall_follower::ControllerParams{}))
   {
-    this->declare_parameter<double>("target_distance", 1.0);
-    this->declare_parameter<double>("kp", 0.5);
-    this->declare_parameter<double>("max_speed", 0.5);
-    this->declare_parameter<double>("watchdog_timeout", 1.0);
-    this->declare_parameter<double>("deadband", 0.02);
+    // Declare parameters with descriptors and ranges
+    auto target_distance_desc = rcl_interfaces::msg::ParameterDescriptor{};
+    target_distance_desc.description = "Target distance from wall in meters";
+    target_distance_desc.floating_point_range.resize(1);
+    target_distance_desc.floating_point_range[0].from_value = 0.0;
+    target_distance_desc.floating_point_range[0].to_value = 10.0;
+    target_distance_desc.floating_point_range[0].step = 0.0;
+    this->declare_parameter<double>("target_distance", 1.0, target_distance_desc);
+
+    auto kp_desc = rcl_interfaces::msg::ParameterDescriptor{};
+    kp_desc.description = "Proportional gain for distance error";
+    kp_desc.floating_point_range.resize(1);
+    kp_desc.floating_point_range[0].from_value = 0.01;
+    kp_desc.floating_point_range[0].to_value = 10.0;
+    kp_desc.floating_point_range[0].step = 0.0;
+    kp_desc.additional_constraints = "Must be > 0";
+    this->declare_parameter<double>("kp", 0.5, kp_desc);
+
+    auto max_speed_desc = rcl_interfaces::msg::ParameterDescriptor{};
+    max_speed_desc.description = "Maximum velocity command in m/s";
+    max_speed_desc.floating_point_range.resize(1);
+    max_speed_desc.floating_point_range[0].from_value = 0.01;
+    max_speed_desc.floating_point_range[0].to_value = 5.0;
+    max_speed_desc.floating_point_range[0].step = 0.0;
+    max_speed_desc.additional_constraints = "Must be > 0";
+    this->declare_parameter<double>("max_speed", 0.5, max_speed_desc);
+
+    auto watchdog_timeout_desc = rcl_interfaces::msg::ParameterDescriptor{};
+    watchdog_timeout_desc.description = "Maximum time in seconds without measurement before stopping";
+    watchdog_timeout_desc.floating_point_range.resize(1);
+    watchdog_timeout_desc.floating_point_range[0].from_value = 0.01;
+    watchdog_timeout_desc.floating_point_range[0].to_value = 10.0;
+    watchdog_timeout_desc.floating_point_range[0].step = 0.0;
+    watchdog_timeout_desc.additional_constraints = "Must be > 0";
+    this->declare_parameter<double>("watchdog_timeout", 1.0, watchdog_timeout_desc);
+
+    auto deadband_desc = rcl_interfaces::msg::ParameterDescriptor{};
+    deadband_desc.description = "Error deadband in meters to prevent oscillations near target";
+    deadband_desc.floating_point_range.resize(1);
+    deadband_desc.floating_point_range[0].from_value = 0.0;
+    deadband_desc.floating_point_range[0].to_value = 1.0;
+    deadband_desc.floating_point_range[0].step = 0.0;
+    this->declare_parameter<double>("deadband", 0.02, deadband_desc);
 
     // Initialize current_params_ from declared parameters
     current_params_ = load_params_from_ros();
