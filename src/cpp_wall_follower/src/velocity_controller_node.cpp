@@ -5,23 +5,17 @@
 #include "std_msgs/msg/float32.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 
+#include "cpp_wall_follower/p_controller.hpp"
+
 
 using namespace std::chrono_literals;
-
-struct ControllerParams
-{
-  double kp;
-  double max_speed;
-  double target_distance;
-  double watchdog_timeout;
-};
 
 
 class VelocityControllerNode : public rclcpp_lifecycle::LifecycleNode {
 public:
   VelocityControllerNode()
   : LifecycleNode("velocity_controller_node"),
-    current_distance_(0.0)
+    controller_(cpp_wall_follower::ControllerParams{})
   {
     this->declare_parameter<double>("target_distance", 1.0);
     this->declare_parameter<double>("kp", 0.5);
@@ -40,26 +34,10 @@ private:
   rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
 
-  double watchdog_timeout_ = 1.0; // seconds
-  bool watchdog_triggered_ = false;
-
-  std::optional<rclcpp::Time> last_msg_time_;
-  double current_distance_;
-
-  double target_distance_;
-  double kp_;
-  double max_speed_;
-
-  void update_controller_params(const ControllerParams & params)
-  {
-    kp_ = params.kp;
-    max_speed_ = params.max_speed;
-    target_distance_ = params.target_distance;
-    watchdog_timeout_ = params.watchdog_timeout;
-  }
+  cpp_wall_follower::PController controller_;
 
   bool validate_params(
-    const ControllerParams & params,
+    const cpp_wall_follower::ControllerParams & params,
     std::string & reason)
   {
     if (params.kp <= 0.0) {
@@ -88,12 +66,11 @@ private:
   rcl_interfaces::msg::SetParametersResult
   parameters_callback(const std::vector<rclcpp::Parameter> & params)
   {
-    ControllerParams new_params {
-      kp_,
-      max_speed_,
-      target_distance_,
-      watchdog_timeout_
-    };
+    cpp_wall_follower::ControllerParams new_params;
+    new_params.kp = this->get_parameter("kp").as_double();
+    new_params.max_speed = this->get_parameter("max_speed").as_double();
+    new_params.target_distance = this->get_parameter("target_distance").as_double();
+    new_params.watchdog_timeout = this->get_parameter("watchdog_timeout").as_double();
 
     for (const auto & param : params) {
       if (param.get_name() == "kp") {
@@ -116,7 +93,7 @@ private:
       return result;
     }
 
-    update_controller_params(new_params);
+    controller_.set_params(new_params);
 
     result.successful = true;
     return result;
@@ -128,7 +105,7 @@ private:
   {
     RCLCPP_INFO(this->get_logger(), "Configuring from state %s", previous_state.label().c_str());
 
-    ControllerParams params;
+    cpp_wall_follower::ControllerParams params;
     params.kp = this->get_parameter("kp").as_double();
     params.max_speed = this->get_parameter("max_speed").as_double();
     params.target_distance = this->get_parameter("target_distance").as_double();
@@ -141,8 +118,7 @@ private:
       return CallbackReturn::FAILURE;
     }
 
-    update_controller_params(params);
-
+    controller_.set_params(params);
 
     auto pub_qos = rclcpp::QoS(rclcpp::KeepLast(1)).reliable();
     publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", pub_qos);
@@ -159,9 +135,7 @@ private:
     auto sub_qos = rclcpp::SensorDataQoS();
     subscription_ = this->create_subscription<std_msgs::msg::Float32>(
             "/filtered_distance", sub_qos, [this](std_msgs::msg::Float32::UniquePtr msg) {
-        current_distance_ = msg->data;
-        last_msg_time_ = this->now();
-        watchdog_triggered_ = false;
+        controller_.update_measurement(msg->data, this->now().seconds());
             });
 
     return CallbackReturn::SUCCESS;
@@ -175,9 +149,6 @@ private:
     timer_.reset();
     subscription_.reset();
 
-    last_msg_time_.reset();
-    watchdog_triggered_ = false;
-
     return CallbackReturn::SUCCESS;
   }
 
@@ -190,29 +161,12 @@ private:
 
   void control_loop()
   {
-    if (!last_msg_time_.has_value()) {
-      publish_zero();
-      return;
-    }
+    double now_sec = this->now().seconds();
+    double velocity = controller_.compute(now_sec);
 
-    auto now = this->now();
-
-    if ((now - *last_msg_time_).seconds() > watchdog_timeout_) {
-      if (!watchdog_triggered_) {
-        RCLCPP_WARN(this->get_logger(),
-          "Watchdog triggered: no distance messages received for %.2f seconds", watchdog_timeout_);
-        watchdog_triggered_ = true;
-      }
-      publish_zero();
-      return;
-    }
-    double error = target_distance_ - current_distance_;
-    double velocity = kp_ * error;
-    velocity = std::clamp(velocity, -max_speed_, max_speed_);
-
-    geometry_msgs::msg::Twist cmd_vel;
+    geometry_msgs::msg::Twist cmd_vel{};
     cmd_vel.linear.x = velocity;
-    cmd_vel.angular.z = 0.0;
+
     publisher_->publish(cmd_vel);
   }
 

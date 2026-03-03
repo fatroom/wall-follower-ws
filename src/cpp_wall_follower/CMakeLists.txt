@@ -15,6 +15,21 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+add_library(wall_follower_lib
+  src/p_controller.cpp
+)
+
+target_include_directories(wall_follower_lib
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 add_executable(sensor src/distance_sensor_node.cpp)
 ament_target_dependencies(sensor rclcpp std_msgs)
 
@@ -22,8 +37,20 @@ add_executable(filter src/distance_filter_node.cpp)
 ament_target_dependencies(filter rclcpp std_msgs)
 
 add_executable(controller src/velocity_controller_node.cpp)
+target_link_libraries(controller
+  wall_follower_lib
+)
+
+
 ament_target_dependencies(controller rclcpp rclcpp_lifecycle std_msgs geometry_msgs)
 
+install(
+  TARGETS wall_follower_lib
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 install(TARGETS
   sensor
@@ -47,5 +74,8 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_include_directories(include)
 
 ament_package()
