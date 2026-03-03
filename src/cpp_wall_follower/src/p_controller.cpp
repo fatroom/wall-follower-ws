@@ -1,63 +1,43 @@
 #include "cpp_wall_follower/p_controller.hpp"
 #include <algorithm>
-#include <atomic>
 
 namespace cpp_wall_follower
 {
 PController::PController(const ControllerParams & params)
+: params_(params), state_()
 {
-  auto p = std::make_shared<ControllerParams>(params);
-  std::atomic_store(
-      &params_,
-      std::shared_ptr<const ControllerParams>(p));
-
-  auto s = std::make_shared<MeasurementState>();
-  std::atomic_store(
-      &state_,
-      std::shared_ptr<const MeasurementState>(s));
 }
 
 void PController::set_params(const ControllerParams & params)
 {
-  auto p = std::make_shared<ControllerParams>(params);
-  std::atomic_store(
-      &params_,
-      std::shared_ptr<const ControllerParams>(p));
+  params_ = params;
 }
 
 void PController::update_measurement(double distance, double time_sec)
 {
-  auto s = std::make_shared<MeasurementState>();
-  s->distance = distance;
-  s->last_msg_time = time_sec;
-  s->has_measurement = true;
-
-  std::atomic_store(
-      &state_,
-      std::shared_ptr<const MeasurementState>(s));
+  state_.distance = distance;
+  state_.last_msg_time = time_sec;
+  state_.has_measurement = true;
 }
 
 double PController::compute(double time_sec) const
 {
-  auto params = std::atomic_load(&params_);
-  auto state = std::atomic_load(&state_);
-
-  if (!state->has_measurement) {
+  if (!state_.has_measurement) {
     return 0.0;
   }
 
-  if ((time_sec - state->last_msg_time) > params->watchdog_timeout) {
+  if ((time_sec - state_.last_msg_time) > params_.watchdog_timeout) {
     return 0.0;
   }
 
-  double error = params->target_distance - state->distance;
+  double error = params_.target_distance - state_.distance;
 
-  if (std::abs(error) < params->deadband) {
+  if (std::abs(error) < params_.deadband) {
     return 0.0;
   }
 
-  double velocity = params->kp * error;
-  return std::clamp(velocity, -params->max_speed, params->max_speed);
+  double velocity = params_.kp * error;
+  return std::clamp(velocity, -params_.max_speed, params_.max_speed);
 }
 
 }

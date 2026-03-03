@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 namespace cpp_wall_follower
 {
 struct ControllerParams
@@ -31,7 +29,7 @@ public:
   double compute(double time_sec) const;
 
 private:
-  std::shared_ptr<const ControllerParams> params_;
-  std::shared_ptr<const MeasurementState> state_;
+  ControllerParams params_;
+  MeasurementState state_;
 };
 }

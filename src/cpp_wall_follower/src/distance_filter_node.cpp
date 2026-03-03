@@ -58,7 +58,7 @@ private:
 
   float process_raw_distance(float distance)
   {
-    if (std::isnan(previous_distance_)) previous_distance_ = distance;
+    if (std::isnan(previous_distance_)) {previous_distance_ = distance;}
     float filtered_distance = alpha_ * distance + (1 - alpha_) * previous_distance_;
     previous_distance_ = filtered_distance;
     return filtered_distance;

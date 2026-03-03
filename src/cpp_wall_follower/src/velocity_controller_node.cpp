@@ -23,6 +23,9 @@ public:
     this->declare_parameter<double>("watchdog_timeout", 1.0);
     this->declare_parameter<double>("deadband", 0.02);
 
+    callback_group_ = this->create_callback_group(
+      rclcpp::CallbackGroupType::MutuallyExclusive);
+
     param_cb_handle_ = this->add_on_set_parameters_callback(
       [this](const std::vector<rclcpp::Parameter> & params) {
         return this->parameters_callback(params);
@@ -30,6 +33,7 @@ public:
   }
 
 private:
+  rclcpp::CallbackGroup::SharedPtr callback_group_;
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_cb_handle_;
   rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr subscription_;
   rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
@@ -141,12 +145,20 @@ private:
   {
     RCLCPP_INFO(this->get_logger(), "Activating from state %s", previous_state.label().c_str());
     publisher_->on_activate();
-    timer_ = this->create_wall_timer(100ms, [this]() {this->control_loop();});
+    timer_ = this->create_wall_timer(
+      100ms,
+      [this]() {this->control_loop();},
+      callback_group_);
     auto sub_qos = rclcpp::SensorDataQoS();
+    auto sub_options = rclcpp::SubscriptionOptions();
+    sub_options.callback_group = callback_group_;
     subscription_ = this->create_subscription<std_msgs::msg::Float32>(
-            "/filtered_distance", sub_qos, [this](std_msgs::msg::Float32::UniquePtr msg) {
+      "/filtered_distance",
+      sub_qos,
+      [this](std_msgs::msg::Float32::UniquePtr msg) {
         controller_.update_measurement(msg->data, this->now().seconds());
-            });
+      },
+      sub_options);
 
     return CallbackReturn::SUCCESS;
   }
@@ -196,7 +208,10 @@ int main(int argc, char * argv[])
 
   auto node = std::make_shared<VelocityControllerNode>();
 
-  rclcpp::executors::SingleThreadedExecutor executor;
+  rclcpp::executors::MultiThreadedExecutor executor(
+    rclcpp::ExecutorOptions(),
+    4  // number of threads
+  );
   executor.add_node(node->get_node_base_interface());
   executor.spin();
 
