@@ -41,7 +41,7 @@ private:
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr publisher_;
   rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr subscription_;
 
-
+  float previous_distance_ = std::numeric_limits<float>::quiet_NaN();
   float alpha_ = 0.2;
 
   bool update_alpha(float new_alpha)
@@ -58,9 +58,9 @@ private:
 
   float process_raw_distance(float distance)
   {
-    static float previous_distance = distance;
-    float filtered_distance = alpha_ * distance + (1 - alpha_) * previous_distance;
-    previous_distance = filtered_distance;
+    if (std::isnan(previous_distance_)) previous_distance_ = distance;
+    float filtered_distance = alpha_ * distance + (1 - alpha_) * previous_distance_;
+    previous_distance_ = filtered_distance;
     return filtered_distance;
   }
 
