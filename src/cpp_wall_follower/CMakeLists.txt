@@ -39,7 +39,7 @@ ament_target_dependencies(sensor rclcpp std_msgs)
 add_executable(filter src/distance_filter_node.cpp)
 ament_target_dependencies(filter rclcpp std_msgs)
 
-add_executable(controller src/velocity_controller_node.cpp)
+add_executable(controller src/wall_follower_node.cpp)
 target_link_libraries(controller
   wall_follower_lib
 )

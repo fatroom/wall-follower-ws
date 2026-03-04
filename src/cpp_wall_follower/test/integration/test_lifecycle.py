@@ -20,7 +20,7 @@ def generate_test_description():
     controller = LifecycleNode(
         package='cpp_wall_follower',
         executable='controller',
-        name='velocity_controller_node',
+        name='wall_follower_node',
         namespace='',
     )
 
@@ -52,11 +52,11 @@ class TestLifecycle(unittest.TestCase):
 
         # Create lifecycle service clients
         self.change_state_client = self.node.create_client(
-            ChangeState, '/velocity_controller_node/change_state'
+            ChangeState, '/wall_follower_node/change_state'
         )
 
         self.get_state_client = self.node.create_client(
-            GetState, '/velocity_controller_node/get_state'
+            GetState, '/wall_follower_node/get_state'
         )
 
         # Wait for services

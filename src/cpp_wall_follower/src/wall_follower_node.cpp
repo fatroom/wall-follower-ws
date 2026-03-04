@@ -17,10 +17,10 @@ using namespace std::chrono_literals;
 
 namespace cpp_wall_follower
 {
-class VelocityControllerNode : public rclcpp_lifecycle::LifecycleNode {
+class WallFollowerNode : public rclcpp_lifecycle::LifecycleNode {
 public:
-  VelocityControllerNode()
-  : LifecycleNode("velocity_controller_node"),
+  WallFollowerNode()
+  : LifecycleNode("wall_follower_node"),
     current_params_(),
     controller_(std::make_unique<cpp_wall_follower::PDistanceController>(
       cpp_wall_follower::ControllerParams{}))
@@ -279,7 +279,7 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<cpp_wall_follower::VelocityControllerNode>();
+  auto node = std::make_shared<cpp_wall_follower::WallFollowerNode>();
 
   rclcpp::executors::MultiThreadedExecutor executor(
     rclcpp::ExecutorOptions(), DEFAULT_EXECUTOR_THREADS

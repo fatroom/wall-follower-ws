@@ -1,4 +1,5 @@
 import os
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import EmitEvent
@@ -20,7 +21,7 @@ def generate_launch_description():
     controller = LifecycleNode(
         package='cpp_wall_follower',
         executable='controller',
-        name='velocity_controller_node',
+        name='wall_follower_node',
         namespace='',
         parameters=[config_file]
     )
