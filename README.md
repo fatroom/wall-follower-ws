@@ -28,7 +28,7 @@ source install/setup.bash
 ## Run
 
 ```bash
-ros2 launch cpp_wall_follower cpp_wall_follower_launch.py
+ros2 launch cpp_wall_follower wall_follower.launch.py
 ```
 
 The launch file starts all three nodes and automatically transitions the controller through configure → activate.

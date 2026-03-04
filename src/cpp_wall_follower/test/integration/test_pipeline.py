@@ -28,7 +28,7 @@ def generate_test_description():
                         [
                             FindPackageShare('cpp_wall_follower'),
                             'launch',
-                            'cpp_wall_follower_launch.py',
+                            'wall_follower.launch.py',
                         ]
                     ),
                 )
