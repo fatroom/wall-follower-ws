@@ -2,7 +2,7 @@
 #include "std_msgs/msg/float32.hpp"
 #include <mutex>
 
-namespace cpp_wall_follower
+namespace wall_follower
 {
 class DistanceFilterNode : public rclcpp::Node {
 public:
@@ -87,7 +87,7 @@ private:
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<cpp_wall_follower::DistanceFilterNode>());
+  rclcpp::spin(std::make_shared<wall_follower::DistanceFilterNode>());
   rclcpp::shutdown();
   return 0;
 }

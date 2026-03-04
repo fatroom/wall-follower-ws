@@ -1,8 +1,8 @@
-#include "cpp_wall_follower/p_distance_controller.hpp"
+#include "wall_follower/p_distance_controller.hpp"
 #include <algorithm>
 
 
-namespace cpp_wall_follower
+namespace wall_follower
 {
 PDistanceController::PDistanceController(const ControllerParams & params)
 : params_(params), state_()

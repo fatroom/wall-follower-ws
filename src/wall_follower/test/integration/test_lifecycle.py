@@ -18,7 +18,7 @@ from rclpy.node import Node
 def generate_test_description():
     """Generate launch description with only controller node."""
     controller = LifecycleNode(
-        package='cpp_wall_follower',
+        package='wall_follower',
         executable='controller',
         name='wall_follower_node',
         namespace='',

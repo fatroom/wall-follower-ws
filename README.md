@@ -1,4 +1,4 @@
-# cpp_wall_follower
+# wall_follower
 
 A ROS 2 wall-following robot demo built in C++. 
 A proportional controller maintains a target distance from a wall using a simulated distance sensor, a low-pass filter, and a lifecycle-managed velocity controller.
@@ -21,14 +21,14 @@ distance_sensor_node → /raw_distance → distance_filter_node → /filtered_di
 ## Build
 
 ```bash
-colcon build --packages-select cpp_wall_follower
+colcon build --packages-select wall_follower
 source install/setup.bash
 ```
 
 ## Run
 
 ```bash
-ros2 launch cpp_wall_follower wall_follower.launch.py
+ros2 launch wall_follower wall_follower.launch.py
 ```
 
 The launch file starts all three nodes and automatically transitions the controller through configure → activate.
@@ -47,7 +47,7 @@ The launch file starts all three nodes and automatically transitions the control
 ## Tests
 
 ```bash
-colcon test --packages-select cpp_wall_follower
+colcon test --packages-select wall_follower
 colcon test-result --verbose
 ```
 

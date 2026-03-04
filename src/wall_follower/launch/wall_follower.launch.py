@@ -13,13 +13,13 @@ from lifecycle_msgs.msg import Transition
 
 def generate_launch_description():
     config_file = os.path.join(
-        get_package_share_directory('cpp_wall_follower'),
+        get_package_share_directory('wall_follower'),
         'config',
         'wall_follower_params.yaml'
     )
 
     controller = LifecycleNode(
-        package='cpp_wall_follower',
+        package='wall_follower',
         executable='controller',
         name='wall_follower_node',
         namespace='',
@@ -52,12 +52,12 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(
-            package='cpp_wall_follower',
+            package='wall_follower',
             executable='sensor',
             name='distance_sensor_node'
         ),
         Node(
-            package='cpp_wall_follower',
+            package='wall_follower',
             executable='filter',
             name='distance_filter_node',
             parameters=[config_file]

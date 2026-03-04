@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "cpp_wall_follower/p_distance_controller.hpp"
+#include "wall_follower/p_distance_controller.hpp"
 
-using namespace cpp_wall_follower;
+using namespace wall_follower;
 
 TEST(PDistanceControllerTest, BasicProportionalResponse)
 {

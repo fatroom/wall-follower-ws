@@ -1,9 +1,9 @@
 #pragma once
 
-#include "cpp_wall_follower/distance_controller.hpp"
+#include "wall_follower/distance_controller.hpp"
 #include <mutex>
 
-namespace cpp_wall_follower
+namespace wall_follower
 {
 /**
  * @brief Proportional controller for maintaining target distance from a wall

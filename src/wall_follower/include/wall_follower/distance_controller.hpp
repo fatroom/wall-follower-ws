@@ -1,6 +1,6 @@
 #pragma once
 
-namespace cpp_wall_follower
+namespace wall_follower
 {
 /**
  * @brief Controller configuration parameters
