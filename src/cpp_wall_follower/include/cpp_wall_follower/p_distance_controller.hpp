@@ -5,12 +5,47 @@
 
 namespace cpp_wall_follower
 {
+/**
+ * @brief Proportional controller for maintaining target distance from a wall
+ *
+ * This controller implements a P-controller (proportional control) to compute
+ * velocity commands that drive a robot to maintain a target distance from a wall.
+ *
+ * Features:
+ * - Proportional control with configurable gain (kp)
+ * - Output saturation to respect maximum speed limits
+ * - Deadband to prevent oscillation near target distance
+ * - Watchdog timeout to stop robot if measurements become stale
+ *
+ * Thread Safety:
+ * All public methods are thread-safe and can be called concurrently from
+ * multiple threads. Internal state is protected by a mutex.
+ */
 class PDistanceController : public DistanceController
 {
 public:
+  /**
+   * @brief Construct controller with given parameters
+   * @param params Initial controller parameters including gains, limits, and timeouts
+   * @note No locking is needed during construction
+   */
   explicit PDistanceController(const ControllerParams & params);
 
+  /**
+   * @brief Update controller parameters atomically
+   * @param params New controller parameters to apply
+   * @note Thread-safe: Can be called concurrently with compute() and update_measurement()
+   * @note Changes take effect immediately for subsequent compute() calls
+   */
   void set_params(const ControllerParams & params) override;
+
+  /**
+   * @brief Update controller with new distance measurement
+   * @param distance Measured distance to wall in meters
+   * @param time_sec Timestamp of measurement in seconds since epoch
+   * @note Thread-safe: Can be called concurrently with compute() and set_params()
+   * @note Sets last_msg_time for watchdog
+   */
   void update_measurement(double distance, double time_sec) override;
 
   /**
