@@ -1,4 +1,4 @@
-# wall_follower
+# Wall Follower
 
 A ROS 2 wall-following robot demo built in C++. 
 A proportional controller maintains a target distance from a wall using a simulated distance sensor, a low-pass filter, and a lifecycle-managed velocity controller.
