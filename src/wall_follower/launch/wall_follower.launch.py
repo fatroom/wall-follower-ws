@@ -1,3 +1,6 @@
+import os
+
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import EmitEvent
 from launch.actions import RegisterEventHandler
@@ -9,12 +12,18 @@ from lifecycle_msgs.msg import Transition
 
 
 def generate_launch_description():
+    config_file = os.path.join(
+        get_package_share_directory('wall_follower'),
+        'config',
+        'wall_follower_params.yaml'
+    )
 
     controller = LifecycleNode(
-        package='cpp_wall_follower',
+        package='wall_follower',
         executable='controller',
-        name='velocity_controller_node',
-        namespace=''
+        name='wall_follower_node',
+        namespace='',
+        parameters=[config_file]
     )
 
     # Emit configure event
@@ -43,15 +52,15 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(
-            package='cpp_wall_follower',
+            package='wall_follower',
             executable='sensor',
             name='distance_sensor_node'
         ),
         Node(
-            package='cpp_wall_follower',
+            package='wall_follower',
             executable='filter',
             name='distance_filter_node',
-            parameters=[{'alpha': 0.1}]
+            parameters=[config_file]
         ),
         controller,
         activate_on_configure,

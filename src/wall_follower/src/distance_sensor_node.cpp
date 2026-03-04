@@ -4,7 +4,7 @@
 
 using namespace std::chrono_literals;
 
-namespace cpp_wall_follower
+namespace wall_follower
 {
 class DistanceSensorNode : public rclcpp::Node {
 public:
@@ -46,7 +46,7 @@ private:
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<cpp_wall_follower::DistanceSensorNode>());
+  rclcpp::spin(std::make_shared<wall_follower::DistanceSensorNode>());
   rclcpp::shutdown();
   return 0;
 }

@@ -6,8 +6,8 @@
 #include "std_msgs/msg/float32.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 
-#include "cpp_wall_follower/distance_controller.hpp"
-#include "cpp_wall_follower/p_distance_controller.hpp"
+#include "wall_follower/distance_controller.hpp"
+#include "wall_follower/p_distance_controller.hpp"
 
 
 static constexpr size_t DEFAULT_EXECUTOR_THREADS = 4;
@@ -15,15 +15,15 @@ static constexpr size_t DEFAULT_EXECUTOR_THREADS = 4;
 using namespace std::chrono_literals;
 
 
-namespace cpp_wall_follower
+namespace wall_follower
 {
-class VelocityControllerNode : public rclcpp_lifecycle::LifecycleNode {
+class WallFollowerNode : public rclcpp_lifecycle::LifecycleNode {
 public:
-  VelocityControllerNode()
-  : LifecycleNode("velocity_controller_node"),
+  WallFollowerNode()
+  : LifecycleNode("wall_follower_node"),
     current_params_(),
-    controller_(std::make_unique<cpp_wall_follower::PDistanceController>(
-      cpp_wall_follower::ControllerParams{}))
+    controller_(std::make_unique<wall_follower::PDistanceController>(
+      wall_follower::ControllerParams{}))
   {
     // Declare parameters with descriptors and ranges
     auto target_distance_desc = rcl_interfaces::msg::ParameterDescriptor{};
@@ -89,11 +89,11 @@ private:
   rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
 
-  cpp_wall_follower::ControllerParams current_params_;
-  std::unique_ptr<cpp_wall_follower::DistanceController> controller_;
+  wall_follower::ControllerParams current_params_;
+  std::unique_ptr<wall_follower::DistanceController> controller_;
 
   bool validate_params(
-    const cpp_wall_follower::ControllerParams & params,
+    const wall_follower::ControllerParams & params,
     std::string & reason)
   {
     if (params.kp <= 0.0) {
@@ -124,9 +124,9 @@ private:
     return true;
   }
 
-  cpp_wall_follower::ControllerParams load_params_from_ros() const
+  wall_follower::ControllerParams load_params_from_ros() const
   {
-    cpp_wall_follower::ControllerParams params;
+    wall_follower::ControllerParams params;
     params.kp = this->get_parameter("kp").as_double();
     params.max_speed = this->get_parameter("max_speed").as_double();
     params.target_distance = this->get_parameter("target_distance").as_double();
@@ -279,7 +279,7 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<cpp_wall_follower::VelocityControllerNode>();
+  auto node = std::make_shared<wall_follower::WallFollowerNode>();
 
   rclcpp::executors::MultiThreadedExecutor executor(
     rclcpp::ExecutorOptions(), DEFAULT_EXECUTOR_THREADS

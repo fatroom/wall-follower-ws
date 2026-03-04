@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(cpp_wall_follower)
+project(wall_follower)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -39,7 +39,7 @@ ament_target_dependencies(sensor rclcpp std_msgs)
 add_executable(filter src/distance_filter_node.cpp)
 ament_target_dependencies(filter rclcpp std_msgs)
 
-add_executable(controller src/velocity_controller_node.cpp)
+add_executable(controller src/wall_follower_node.cpp)
 target_link_libraries(controller
   wall_follower_lib
 )
@@ -64,6 +64,11 @@ install(TARGETS
 install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}/
+)
+
+install(DIRECTORY
+  config
+  DESTINATION share/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

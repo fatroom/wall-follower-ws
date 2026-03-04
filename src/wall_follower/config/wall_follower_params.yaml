@@ -1,0 +1,11 @@
+distance_filter_node:
+  ros__parameters:
+    alpha: 0.1
+
+wall_follower_node:
+  ros__parameters:
+    target_distance: 1.0
+    kp: 0.5
+    max_speed: 0.5
+    watchdog_timeout: 1.0
+    deadband: 0.02
